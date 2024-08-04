@@ -9,15 +9,20 @@ const ModalMobile = ({ color, onClose, getColorName }) => {
     const handleSaveImage = async () => {
         try {
             const canvas = await html2canvas(cardRef.current);
-            canvas.toBlob((blob) => {
-                const url = URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = 'color_image.png';
-                document.body.appendChild(a);
-                a.click();
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
+            canvas.toBlob(async (blob) => {
+                if (navigator.share) {
+                    const file = new File([blob], 'color_image.png', { type: 'image/png' });
+                    try {
+                        await navigator.share({
+                            files: [file],
+                            title: 'Color Image',
+                        });
+                    } catch (error) {
+                        console.error('Error sharing image:', error);
+                    }
+                } else {
+                    alert('공유 기능을 지원하지 않습니다.');
+                }
             }, 'image/png');
         } catch (error) {
             console.error('Error saving image:', error);

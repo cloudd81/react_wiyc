@@ -6,6 +6,7 @@ import ntc from 'ntc';
 import Papa from 'papaparse';
 import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import './BoxAnimation.css';
+import { CiSearch } from "react-icons/ci";
 
 function App() {
     const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
@@ -91,7 +92,7 @@ function App() {
             return row.syntax === inputText;
         });
 
-        if (!isDuplicate) {
+        if (inputText && !isDuplicate) {
             submitForm(inputText, color);
         }
         setIsModalOpen(true);
@@ -129,13 +130,17 @@ function App() {
         <div className="App">
             <div className="MainLogo-Container">
                 <TransitionGroup className="box-container">
+                    <div className="App-Content">
+                        <h1>WhatIsYourColor</h1>
+                    </div>
+
                     {sheetData.slice().reverse().map((data, index) => { // 배열을 역순으로 뒤집기
                         if (!nodeRefs.current[index]) {
                             nodeRefs.current[index] = createRef();
                         }
                         const shouldShow = true;
                         const nodeRef = nodeRefs.current[index];
-                        const position = boxPositions[index] || { left: 0, top: 0, delay: 0 };
+                        const position = boxPositions[index] || {left: 0, top: 0, delay: 0};
                         return (
                             <CSSTransition
                                 key={index}
@@ -157,20 +162,16 @@ function App() {
                             </CSSTransition>
                         );
                     })}
-                    <MainLogo />
                     <div className="Input-Container">
                         <input
                             type="text"
                             className="InputField"
-                            placeholder="여기에 입력하세요"
+                            placeholder="무엇이든색깔로만들어요"
                             value={inputText}
                             onChange={handleChange}
                             onKeyDown={handleKeyDown}
                         />
-                        <button onClick={handleClick}>🔍</button>
-                    </div>
-                    <div className="App-Content">
-                        <h1>WhatIsYourColor</h1>
+                        <button onClick={handleClick}><CiSearch/></button>
                     </div>
                 </TransitionGroup>
             </div>

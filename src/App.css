@@ -1,3 +1,7 @@
+body {
+  margin: 0;
+}
+
 .App {
   position: relative;
   text-align: center;
@@ -23,14 +27,12 @@
 }
 
 button {
-  margin-top: 20px;
   padding: 10px;
   font-size: 16px;
   cursor: pointer;
 }
 
 .InputField {
-  margin-top: 20px; /* 로고 아래에 간격을 줍니다 */
   padding: 10px;
   font-size: 16px;
 }

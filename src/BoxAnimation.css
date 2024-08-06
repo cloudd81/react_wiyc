@@ -8,14 +8,15 @@
 
 .box {
     position: absolute;
-    width: 50px;
-    height: 50px;
+    width: 15px; /* 박스 크기 */
+    height: 15px; /* 박스 크기 */
     animation: fall 5s linear infinite;
+    animation-delay: 0s; /* 초기값 */
 }
 
 @keyframes fall {
     0% {
-        transform: translateY(0);
+        transform: translateY(-100vh);
     }
     100% {
         transform: translateY(100vh);

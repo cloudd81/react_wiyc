@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React, {useState, useEffect, useRef} from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import './App.css';
 import Modal from './Modal';
 import ModalMobile from './ModalMobile';
@@ -9,11 +9,12 @@ import { CSSTransition, TransitionGroup } from 'react-transition-group';
 import './BoxAnimation.css'; // 애니메이션 CSS 파일
 
 function App() {
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent); // 모바일 확인
     const [inputText, setInputText] = useState('');
     const [colorCode, setColorCode] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [sheetData, setSheetData] = useState([]);
+    const [boxPositions, setBoxPositions] = useState([]);
 
     const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSglsQ4diG-sZN2crtVhvPq7CO7Jap6bbxmE18OupiCFcprfOCzGPFHMcr2fXjkJ9TDOBpIzHE2Tl2V/pub?gid=1797319324&single=true&output=csv';
     const formURL = 'https://docs.google.com/forms/d/e/1FAIpQLScz_nqsN8YVd4VzQ2lqqdnVNsJdZZVc6R1njaUQi21tkKtpuA/formResponse';
@@ -40,18 +41,47 @@ function App() {
         return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 interval 정리
     }, []);
 
+    useEffect(() => {
+        const calculatePositions = () => {
+            const boxSize = 15; // 박스 크기 (px)
+            const containerWidth = window.innerWidth;
+            const containerHeight = window.innerHeight;
+            const columns = Math.floor(containerWidth / boxSize);
+
+            let positions = [];
+            for (let i = 0; i < sheetData.length; i++) {
+                const col = i % columns;
+                const row = Math.floor(i / columns);
+                positions.push({
+                    left: col * boxSize,
+                    top: containerHeight - (row + 1) * boxSize,
+                    delay: Math.random() * 5 // 랜덤 딜레이 (0초에서 5초 사이)
+                });
+            }
+
+            setBoxPositions(positions);
+        };
+
+        calculatePositions();
+        window.addEventListener('resize', calculatePositions);
+
+        return () => {
+            window.removeEventListener('resize', calculatePositions);
+        };
+    }, [sheetData]);
+
     const handleChange = (event) => {
         setInputText(event.target.value);
     };
 
-    const handleClick = async () =>  {
+    const handleClick = async () => {
         const color = textToColor(inputText);
         setColorCode(color);
 
         await fetchSheetData();
 
         const isDuplicate = sheetData.some(
-            (row) => row.inputText === inputText && row.colorCode === color
+            (row) => row.name === inputText
         );
 
         if (isDuplicate) {
@@ -95,7 +125,7 @@ function App() {
     return (
         <div className="App">
             <div className="MainLogo-Container">
-                <MainLogo/>
+                <MainLogo />
                 <div className="Input-Container">
                     <input
                         type="text"
@@ -114,6 +144,7 @@ function App() {
             <TransitionGroup className="box-container">
                 {sheetData.map((data, index) => {
                     const nodeRef = nodeRefs.current[index]; // 각 박스에 대한 ref
+                    const position = boxPositions[index] || { left: 0, top: 0, delay: 0 };
                     return (
                         <CSSTransition
                             key={index}
@@ -126,18 +157,20 @@ function App() {
                                 className="box"
                                 style={{
                                     backgroundColor: data.colorCode,
-                                    left: `${Math.random() * 100}%` // 랜덤 위치
+                                    left: `${position.left}px`,
+                                    top: `${position.top}px`,
+                                    animationDelay: `${position.delay}s`
                                 }}
                             />
                         </CSSTransition>
                     );
                 })}
             </TransitionGroup>
-            {isModalOpen &&(
-                isMobile? (
-                    <ModalMobile color={colorCode} onClose={closeModal} getColorName={getColorName}/>
+            {isModalOpen && (
+                isMobile ? (
+                    <ModalMobile color={colorCode} onClose={closeModal} getColorName={getColorName} />
                 ) : (
-                    <Modal color={colorCode} onClose={closeModal} getColorName={getColorName}/>
+                    <Modal color={colorCode} onClose={closeModal} getColorName={getColorName} />
                 )
             )}
         </div>
@@ -147,7 +180,7 @@ function App() {
 function MainLogo() {
     return (
         <>
-            <img className="LogoImage" alt="logo" src="img/logo512.png"/>
+            <img className="LogoImage" alt="logo" src="img/logo512.png" />
         </>
     )
 }

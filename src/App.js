@@ -15,6 +15,7 @@ function App() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [sheetData, setSheetData] = useState([]);
     const [boxPositions, setBoxPositions] = useState([]);
+
     const nodeRefs = useRef([]);
     const sheetURL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSglsQ4diG-sZN2crtVhvPq7CO7Jap6bbxmE18OupiCFcprfOCzGPFHMcr2fXjkJ9TDOBpIzHE2Tl2V/pub?gid=1797319324&single=true&output=csv';
     const formURL = 'https://docs.google.com/forms/d/e/1FAIpQLScz_nqsN8YVd4VzQ2lqqdnVNsJdZZVc6R1njaUQi21tkKtpuA/formResponse';
@@ -128,26 +129,36 @@ function App() {
 
     return (
         <div className="App">
-            <div className="MainLogo-Container">
-                <TransitionGroup className="box-container">
+            <div className="Main-Container">
+                <div className="Input-Container">
                     <div className="App-Content">
                         <h1>WhatIsYourColor</h1>
                     </div>
-
+                    <input
+                        type="text"
+                        className="InputField"
+                        placeholder="무엇이든색깔로만들어요"
+                        value={inputText}
+                        onChange={handleChange}
+                        onKeyDown={handleKeyDown}
+                    />
+                    <button onClick={handleClick}><CiSearch/></button>
+                </div>
+                <TransitionGroup className="Box-Container">
                     {sheetData.slice().reverse().map((data, index) => { // 배열을 역순으로 뒤집기
                         if (!nodeRefs.current[index]) {
                             nodeRefs.current[index] = createRef();
                         }
-                        const shouldShow = true;
                         const nodeRef = nodeRefs.current[index];
                         const position = boxPositions[index] || {left: 0, top: 0, delay: 0};
                         return (
                             <CSSTransition
+                                in={true}
                                 key={index}
                                 nodeRef={nodeRef}
                                 timeout={500}
                                 classNames="box"
-                                in={shouldShow}
+                                onExited={() => console.log('Exited')}
                             >
                                 <div
                                     ref={nodeRef}
@@ -162,24 +173,13 @@ function App() {
                             </CSSTransition>
                         );
                     })}
-                    <div className="Input-Container">
-                        <input
-                            type="text"
-                            className="InputField"
-                            placeholder="무엇이든색깔로만들어요"
-                            value={inputText}
-                            onChange={handleChange}
-                            onKeyDown={handleKeyDown}
-                        />
-                        <button onClick={handleClick}><CiSearch/></button>
-                    </div>
                 </TransitionGroup>
             </div>
             {isModalOpen && (
                 isMobile ? (
-                    <ModalMobile color={colorCode} onClose={closeModal} getColorName={getColorName} />
+                    <ModalMobile color={colorCode} onClose={closeModal} getColorName={getColorName}/>
                 ) : (
-                    <Modal color={colorCode} onClose={closeModal} getColorName={getColorName} />
+                    <Modal color={colorCode} onClose={closeModal} getColorName={getColorName}/>
                 )
             )}
         </div>
